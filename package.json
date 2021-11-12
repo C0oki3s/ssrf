@@ -1,0 +1,30 @@
+{
+  "name": "ssrf",
+  "version": "1.0.0",
+  "description": "This module help's you to prevent ssrf attacks",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ssrf",
+    "security"
+  ],
+  "homepage": "https://github.com/C0oki3s/ssrf",
+  "author": "K rohith",
+  "license": "ISC",
+  "dependencies": {
+    "ipaddr.js": "^1.1.0"
+  },
+  "devDependencies": {
+    "axios": "^0.24.0",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.1"
+  },
+  "bugs": {
+    "url": "https://github.com/C0oki3s/ssrf/issues"
+  }
+}
