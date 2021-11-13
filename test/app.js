@@ -2,7 +2,7 @@ const ssrf = require("../lib/index")
 const axios = require("axios").default
 
 ssrf.options({
-  blacklist:"C:\\Users\\rohit\\OneDrive\\Desktop\\ssrf\\test\\host.txt", //window's
+  blacklist:"/lists/ssrf/host.txt", //window's
   path:false
 })
 let DNS_rebinding = "https://c0okie.xyz/attacker.html" //my domain running on 127.0.0.1
