@@ -10,6 +10,7 @@ the attacker can abuse functionality on the server to read or update internal re
 `npm install ssrf`
 
 ## Usage
+
 ```js
 
 ssrf.options({
@@ -36,7 +37,7 @@ fetch()
 
 ## ssrf.url()
 
-using await ssrf.url("http://example.com") in try-catch block
+ssrf.url return Promise so use await ssrf.url("http://example.com") in try-catch block
      
 ```js
      
