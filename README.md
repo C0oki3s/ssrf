@@ -89,7 +89,7 @@ return absolute Url `http://example.com/path1?param=1`
 
 return  Hostname `http://example.com or http://www.example.com`
 
-This module Prevents From reserverd character `@` attack and DNS rebinding attack. to Learn more about DNS rebinding [more](https://github.com/C0oki3s/Payloads/tree/main/DNS-Rebinding)
+This module Prevents From reserverd character `@` attack and DNS rebinding attack. to Learn more about DNS rebinding [more](https://github.com/C0oki3s/research/tree/main/DNS-Rebinding)
            
           
 
