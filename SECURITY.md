@@ -2,20 +2,17 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 1.0.1   | :white_check_mark: |
+| 1.0.0   | :x:                |
 
-## Reporting a Vulnerability
+## Reporting a Security Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+If you discover any security-related issues or vulnerabilities in this project, please create a public issue
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+I will review and respond to security reports as quickly as possible, usually within 72 hours.
+
+## Accepting Ideas and Contributions
+
+I value collaboration and welcome ideas and contributions from the community, not just limited to security matters. If you have suggestions, enhancements, or any other ideas to improve this project, feel free to open a GitHub issue or submit a pull request. I appreciate your input!
