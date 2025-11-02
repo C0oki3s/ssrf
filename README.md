@@ -12,27 +12,12 @@ the attacker can abuse functionality on the server to read or update internal re
 ## Usage
 
 ```js
-
+// Back-compat usage (direct API)
 ssrf.options({
-  blacklist:"/ssrf/list.txt", //Linux if windows pass 'C:\\Users\\host.txt'
-  path:false
+  blacklist: "/ssrf/list.txt", // Linux; on Windows use 'C:\\Users\\host.txt'
+  path: false
 })
-let DNS_rebinding = "https://c0okie.xyz/attacker.html" //my domain running on 127.0.0.1
-let url = "http://evil.com" //Blacklist host
-let ip = "http://13.54.97.2" //Blacklist IP
-
-//Normal request
-const fetch = async() =>{
-  try {
-    const gotssrf = await ssrf.url(ip) //return host or ip 
-    axios.get(gotssrf)
-    .then((data) => console.log(data.data))
-    .catch(err => console.log(err))
-  } catch (error) {
-    console.log("Handle Error for Front End User")
-  }
-}
-fetch()
+const gotssrf = await ssrf.url("http://13.54.97.2")
 ``` 
 
 ## ssrf.url()
@@ -95,3 +80,125 @@ This module Prevents From reserverd character `@` attack and DNS rebinding attac
 
 [download-url]: https://www.npmjs.com/package/ssrf
 [ssrf-badgen]: https://badgen.net/npm/v/ssrf
+ 
+## Advanced configuration (CIDR, whitelist, IP inputs)
+
+The library now supports allow/deny lists using hostnames, IPs, and CIDR ranges, from files or arrays, and accepts raw IPs/hosts as inputs.
+
+Examples:
+
+```js
+const path = require('path')
+const ssrf = require('ssrf')
+
+ssrf.options({
+  // Load lists from files (one entry per line; supports host/IP/CIDR; lines starting with # are comments)
+  blacklistFile: path.join(__dirname, 'blacklist.txt'),
+  whitelistFile: path.join(__dirname, 'whitelist.txt'),
+
+  // Or configure directly
+  blacklistHosts: ['evil.com'],
+  blacklistIPs: ['13.54.97.2'],
+  blacklistCIDRs: ['10.0.0.0/8', 'fd00::/8'],
+
+  whitelistHosts: ['api.example.com'],
+  whitelistIPs: ['203.0.113.10'],
+  whitelistCIDRs: ['203.0.113.0/24', '2001:db8::/32'],
+
+  // Return only scheme+host when false (defaults to true for full URL)
+  path: false
+})
+
+// Inputs can be full URLs, hostnames, or raw IPs
+await ssrf.url('http://api.example.com/v1?q=1') // allowed if matches whitelist
+await ssrf.url('evil.com') // throws if blacklisted
+await ssrf.url('13.54.97.2') // throws if blacklisted or not whitelisted
+```
+
+Notes:
+- Only http and https schemes are permitted.
+- Inputs can be full URLs, hostnames, raw IPv4, or raw IPv6. Raw IPv6 is normalized to bracketed form (e.g., ::1 -> http://[::1]).
+- Hostnames are resolved to ALL A/AAAA records and each address is evaluated.
+- Private, loopback, link-local, multicast, and reserved IPs are blocked by default unless explicitly whitelisted by IP or CIDR.
+- If a whitelist is provided, the destination must match it; otherwise it is denied even if not on the blacklist.
+- IPv4 private addresses are also detected when supplied in hexadecimal, octal, or single-integer forms (e.g., `0x7f000001`, `0177.0.0.1`, `2130706433`).
+
+## Express middleware
+
+Use globally (entire app):
+
+```js
+const express = require('express')
+const ssrf = require('ssrf')
+
+const app = express()
+app.use(express.json())
+
+app.use(
+  ssrf.middleware(
+    {
+      // Lists from files or arrays
+      // blacklistFile: 'C:\\lists\\deny.txt',
+      whitelistHosts: ['api.example.com'],
+      whitelistCIDRs: ['2001:db8::/32', '203.0.113.0/24'],
+      blacklistCIDRs: ['10.0.0.0/8', 'fc00::/7'],
+      path: false
+    },
+    {
+      source: 'body',        // 'body' | 'query' | 'params' | 'headers'
+      key: 'url',            // field name in the chosen source
+      attachKey: 'safeUrl',  // attach approved URL to req.safeUrl
+      replaceOriginal: false,
+      blockOnError: true,    // respond with 400 + JSON by default
+      statusCode: 400,
+      // onError: (errors, req, res, next) => { ...custom handler... }
+    }
+  )
+)
+
+app.post('/fetch', (req, res) => {
+  res.json({ ok: true, safeUrl: req.safeUrl })
+})
+```
+
+Use at endpoint level (route-specific config) with an isolated instance:
+
+```js
+const filesOnly = ssrf.create({
+  whitelistHosts: ['files.example.com'],
+  path: true
+})
+
+app.post('/upload', filesOnly.middleware({ source: 'query', key: 'target' }), (req, res) => {
+  res.json({ ok: true, url: req.safeUrl })
+})
+```
+
+Direct use with an isolated instance (no global state):
+
+```js
+const instance = ssrf.create({ path: false })
+try {
+  const safe = await instance.url('example.com')
+  // use safe
+} catch (e) {
+  // e.message contains a JSON array of reasons
+}
+```
+
+## Examples
+
+- Full Express example: `examples/express-server/server.js`
+  - App-level middleware: `app.use(ssrf.middleware(...))`
+  - Route-level middleware with isolated instance: `const inst = ssrf.create(...); app.post('/path', inst.middleware(...))`
+
+## TypeScript
+
+This package ships type definitions. Import normally in TS projects and get intellisense for options and middleware:
+
+```ts
+import ssrf = require('ssrf')
+
+const inst = ssrf.create({ path: false, whitelistCIDRs: ['2001:db8::/32'] })
+const safe = await inst.url('example.com')
+```
