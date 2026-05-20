@@ -1,1 +1,7 @@
 node_modules/
+coverage/
+test/
+.github/
+.claude/
+*.test.js
+npm-verify.txt
